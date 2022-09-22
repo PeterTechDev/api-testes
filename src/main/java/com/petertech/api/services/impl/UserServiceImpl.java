@@ -3,6 +3,7 @@ package com.petertech.api.services.impl;
 import com.petertech.api.domain.User;
 import com.petertech.api.repositories.UserRepository;
 import com.petertech.api.services.UserService;
+import com.petertech.api.services.exceptions.ObjetctNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,6 @@ public class UserServiceImpl implements UserService {
     public User findById(Integer id) {
        Optional<User> user = userRepository.findById(id);
 
-       return user.orElse(null);
+       return user.orElseThrow(() -> new ObjetctNotFoundException("Object not found: " + id));
     }
 }
