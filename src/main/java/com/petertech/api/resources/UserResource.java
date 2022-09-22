@@ -1,7 +1,6 @@
 package com.petertech.api.resources;
 
-import com.petertech.api.domain.User;
-import com.petertech.api.domain.dto.UserDto;
+import com.petertech.api.domain.dto.UserDTO;
 import com.petertech.api.services.UserService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +9,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -22,8 +24,17 @@ public class UserResource {
     private UserService userService;
 
     @GetMapping(value = "/{id}")
-    public ResponseEntity<UserDto> findById(@PathVariable Integer id) {
+    public ResponseEntity<UserDTO> findById(@PathVariable Integer id) {
 
-        return ResponseEntity.ok().body(mapper.map(userService.findById(id), UserDto.class ));
+        return ResponseEntity.ok().body(mapper.map(userService.findById(id), UserDTO.class ));
+    }
+
+    @GetMapping
+    public ResponseEntity<List<UserDTO>> findAll() {
+        return ResponseEntity.ok()
+                .body(userService.findAll()
+                    .stream()
+                    .map(user -> mapper.map(user, UserDTO.class))
+                    .collect(Collectors.toList()));
     }
 }
