@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService {
     public User findById(Integer id) {
        Optional<User> user = userRepository.findById(id);
 
-       return user.orElseThrow(() -> new ObjetctNotFoundException("Object not found: " + id));
+       return user.orElseThrow(() -> new ObjetctNotFoundException("Object not found"));
     }
 
     public List<User> findAll() {
