@@ -3,6 +3,7 @@ package com.petertech.api.services.impl;
 import com.petertech.api.domain.User;
 import com.petertech.api.domain.dto.UserDTO;
 import com.petertech.api.repositories.UserRepository;
+import com.petertech.api.services.exceptions.ObjetctNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -53,6 +54,20 @@ class UserServiceImplTest {
         assertEquals(ID, response.getId());
         assertEquals(NAME, response.getName());
         assertEquals(PASSWORD, response.getPassword());
+    }
+
+    @Test
+    void whenFindByNameThenReturnAnObjectNotFoundException() {
+        when(userRepository.findById(anyInt()))
+                .thenThrow(new ObjetctNotFoundException("Object not found"));
+
+        try{
+            userService.findById(ID);
+        } catch (Exception e) {
+            assertEquals(ObjetctNotFoundException.class, e.getClass());
+            assertEquals("Object not found", e.getMessage());
+        }
+
     }
 
     @Test
