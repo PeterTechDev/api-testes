@@ -3,6 +3,7 @@ package com.petertech.api.services.impl;
 import com.petertech.api.domain.User;
 import com.petertech.api.domain.dto.UserDTO;
 import com.petertech.api.repositories.UserRepository;
+import com.petertech.api.services.exceptions.DataIntegratyViolationException;
 import com.petertech.api.services.exceptions.ObjetctNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 
 import java.util.List;
@@ -17,8 +19,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 
 class UserServiceImplTest {
@@ -103,6 +104,20 @@ class UserServiceImplTest {
         assertEquals(NAME, response.getName());
         assertEquals(PASSWORD, response.getPassword());
         assertEquals(EMAIL, response.getEmail());
+    }
+
+    @Test
+    void whenCreateThenReturnDataIntegrityViolationException() {
+        when(userRepository.findByEmail(anyString()))
+                .thenReturn(optionalUser);
+
+        try {
+            optionalUser.get().setId(2);
+            userService.create(userDTO);
+        } catch (Exception e) {
+            assertEquals(DataIntegratyViolationException.class, e.getClass());
+            assertEquals("E-mail already exists", e.getMessage());
+        }
     }
 
     @Test
