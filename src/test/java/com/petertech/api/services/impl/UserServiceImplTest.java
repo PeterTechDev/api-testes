@@ -3,6 +3,7 @@ package com.petertech.api.services.impl;
 import com.petertech.api.domain.User;
 import com.petertech.api.domain.dto.UserDTO;
 import com.petertech.api.repositories.UserRepository;
+import com.petertech.api.services.exceptions.DataIntegratyViolationException;
 import com.petertech.api.services.exceptions.ObjetctNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,14 +11,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.modelmapper.ModelMapper;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
 
@@ -27,6 +30,7 @@ class UserServiceImplTest {
     public static final String PASSWORD = "123";
     public static final String OBJECT_NOT_FOUND = "Object not found";
     public static final int INDEX = 0;
+    public static final String EMAIL_ALREADY_EXISTS = "E-mail already exists";
 
     @InjectMocks
     private UserServiceImpl userService;
@@ -90,15 +94,81 @@ class UserServiceImplTest {
     }
 
     @Test
-    void create() {
+    void whenCreateThenReturnSuccess() {
+        when(userRepository.save(any())).thenReturn(user);
+
+        User response = userService.create(userDTO);
+
+        assertNotNull(response);
+        assertEquals(User.class, response.getClass());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(PASSWORD, response.getPassword());
+        assertEquals(EMAIL, response.getEmail());
     }
 
     @Test
-    void update() {
+    void whenCreateThenReturnDataIntegrityViolationException() {
+        when(userRepository.findByEmail(anyString()))
+                .thenReturn(optionalUser);
+
+        try {
+            optionalUser.get().setId(2);
+            userService.create(userDTO);
+        } catch (Exception e) {
+            assertEquals(DataIntegratyViolationException.class, e.getClass());
+            assertEquals(EMAIL_ALREADY_EXISTS, e.getMessage());
+        }
     }
 
     @Test
-    void delete() {
+    void whenUpdateThenReturnSuccess() {
+        when(userRepository.save(any())).thenReturn(user);
+
+        User response = userService.update(userDTO);
+
+        assertNotNull(response);
+        assertEquals(User.class, response.getClass());
+        assertEquals(ID, response.getId());
+        assertEquals(NAME, response.getName());
+        assertEquals(PASSWORD, response.getPassword());
+        assertEquals(EMAIL, response.getEmail());
+    }
+
+    @Test
+    void whenUpdateThenReturnDataIntegrityViolationException() {
+        when(userRepository.findByEmail(anyString()))
+                .thenReturn(optionalUser);
+
+        try {
+            optionalUser.get().setId(2);
+            userService.create(userDTO);
+        } catch (Exception e) {
+            assertEquals(DataIntegratyViolationException.class, e.getClass());
+            assertEquals(EMAIL_ALREADY_EXISTS, e.getMessage());
+        }
+    }
+
+    @Test
+    void detelteWithSuccess() {
+        when(userRepository.findById((anyInt()))).thenReturn(optionalUser);
+        doNothing().when(userRepository).deleteById(anyInt());
+        userService.delete(ID);
+
+        verify(userRepository, times(1)).deleteById(ID);
+    }
+
+    @Test
+    void deleteWithObjectNotFoundException() {
+        when(userRepository.findById((anyInt())))
+                .thenThrow(new ObjetctNotFoundException(OBJECT_NOT_FOUND));
+
+        try {
+            userService.delete(ID);
+        } catch (Exception e) {
+            assertEquals(ObjetctNotFoundException.class, e.getClass());
+            assertEquals(OBJECT_NOT_FOUND, e.getMessage());
+        }
     }
 
     private void startUser() {
