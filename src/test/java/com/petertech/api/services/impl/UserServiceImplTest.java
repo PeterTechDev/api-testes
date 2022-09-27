@@ -20,7 +20,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class UserServiceImplTest {
 
@@ -150,7 +150,25 @@ class UserServiceImplTest {
     }
 
     @Test
-    void delete() {
+    void detelteWithSuccess() {
+        when(userRepository.findById((anyInt()))).thenReturn(optionalUser);
+        doNothing().when(userRepository).deleteById(anyInt());
+        userService.delete(ID);
+
+        verify(userRepository, times(1)).deleteById(ID);
+    }
+
+    @Test
+    void deleteWithObjectNotFoundException() {
+        when(userRepository.findById((anyInt())))
+                .thenThrow(new ObjetctNotFoundException(OBJECT_NOT_FOUND));
+
+        try {
+            userService.delete(ID);
+        } catch (Exception e) {
+            assertEquals(ObjetctNotFoundException.class, e.getClass());
+            assertEquals(OBJECT_NOT_FOUND, e.getMessage());
+        }
     }
 
     private void startUser() {
