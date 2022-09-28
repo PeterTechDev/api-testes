@@ -36,8 +36,6 @@ class ResourceExceptionHandlerTest {
                         new ObjetctNotFoundException(OBJECT_NOT_FOUND),
                         new MockHttpServletRequest());
 
-        response.getBody().getPath();
-
         assertNotNull(response);
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
@@ -56,8 +54,6 @@ class ResourceExceptionHandlerTest {
                         new DataIntegratyViolationException(EMAIL_ALREADY_EXISTS),
                         new MockHttpServletRequest());
 
-        response.getBody().getPath();
-
         assertNotNull(response);
         assertNotNull(response.getBody());
         assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -65,8 +61,5 @@ class ResourceExceptionHandlerTest {
         assertEquals(EMAIL_ALREADY_EXISTS, response.getBody().getError());
         assertEquals(ResponseEntity.class, response.getClass());
         assertEquals(StandartError.class, response.getBody().getClass());
-        assertNotEquals("/user/2", response.getBody().getPath());
-        assertNotEquals(LocalDateTime.now(), response.getBody().getTimestamp());
     }
-
 }
